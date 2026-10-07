@@ -1,0 +1,10 @@
+import HeritageSite from "../models/HeritageSite.js";
+import ApiError from "../utils/ApiError.js";
+const slugify = (value) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+export const listSites = async (req, res, next) => { try { const query = { status: "published" }; if (req.query.district) query.district = new RegExp(`^${req.query.district}$`, "i"); if (req.query.search) query.$text = { $search: req.query.search }; const sites = await HeritageSite.find(query).sort({ name: 1 }); res.json({ success: true, data: { sites, total: sites.length } }); } catch (e) { next(e); } };
+export const getSite = async (req, res, next) => { try { const site = await HeritageSite.findOne({ $or: [{ _id: /^[a-f\d]{24}$/i.test(req.params.id) ? req.params.id : null }, { slug: req.params.id }] }); if (!site) throw new ApiError(404, "Heritage site not found."); res.json({ success: true, data: { site } }); } catch (e) { next(e); } };
+export const adminList = async (_req, res, next) => { try { const sites = await HeritageSite.find().sort({ updatedAt: -1 }); res.json({ success: true, data: { sites, total: sites.length } }); } catch (e) { next(e); } };
+export const createSite = async (req, res, next) => { try { const site = await HeritageSite.create({ ...req.body, slug: req.body.slug || slugify(req.body.name) }); res.status(201).json({ success: true, data: { site } }); } catch (e) { next(e); } };
+export const updateSite = async (req, res, next) => { try { const site = await HeritageSite.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }); if (!site) throw new ApiError(404, "Heritage site not found."); res.json({ success: true, data: { site } }); } catch (e) { next(e); } };
+export const deleteSite = async (req, res, next) => { try { const site = await HeritageSite.findByIdAndDelete(req.params.id); if (!site) throw new ApiError(404, "Heritage site not found."); res.json({ success: true, message: "Heritage site deleted." }); } catch (e) { next(e); } };

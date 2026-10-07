@@ -1,0 +1,24 @@
+﻿# Dependencies
+node_modules/
+**/node_modules/
+
+# Production builds
+dist/
+**/dist/
+
+# Private environment files
+.env
+**/.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temporary uploaded files
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vscode/
